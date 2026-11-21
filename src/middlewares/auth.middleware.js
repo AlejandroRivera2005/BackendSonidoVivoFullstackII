@@ -1,21 +1,32 @@
 const ErrorApp = require('../utils/errores');
 const { verificarToken } = require('../utils/jwt');
+const usuarioRepository = require('../repositories/usuario.repository');
 
 const formatoCabecera = /^Bearer\s+(\S+)$/i;
 
-function autenticar(req, res, next) {
+async function autenticar(req, res, next) {
   try {
     const coincidencia = formatoCabecera.exec(req.headers.authorization || '');
-    if (!coincidencia) {
-      throw new ErrorApp(401, 'Falta el token. Envía el header "Authorization: Bearer <token>".');
-    }
+    if (!coincidencia) throw new ErrorApp(401, 'Falta token JWT.');
 
     const payload = verificarToken(coincidencia[1]);
-    req.usuario = { id: Number(payload.sub), nombre: payload.nombre, email: payload.email };
+    const id = Number(payload.sub);
+    if (!Number.isSafeInteger(id) || id <= 0) throw new ErrorApp(401, 'Token inválido.');
+
+    const usuario = await usuarioRepository.buscarPorId(id);
+    if (!usuario) throw new ErrorApp(401, 'La cuenta ya no existe.');
+    req.usuario = usuario.aPublico();
     next();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 }
 
-module.exports = { autenticar };
+function soloAdmin(req, res, next) {
+  if (!req.usuario || req.usuario.rol !== 'admin') {
+    return next(new ErrorApp(403, 'Acceso exclusivo para administradores.'));
+  }
+  next();
+}
+
+module.exports = { autenticar, soloAdmin };

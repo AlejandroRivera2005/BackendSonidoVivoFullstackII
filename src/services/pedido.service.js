@@ -65,6 +65,11 @@ async function listarPedidos() {
   return pedidos.map((pedido) => pedido.aPublico());
 }
 
+async function listarPedidosDeUsuario(usuarioId) {
+  const pedidos = await pedidoRepository.listarPorUsuario(usuarioId);
+  return pedidos.map((pedido) => pedido.aPublico());
+}
+
 async function obtenerPedido(id) {
   const pedido = await pedidoRepository.buscarPorId(id);
   if (!pedido) throw new ErrorApp(404, 'Pedido no encontrado.');
@@ -97,6 +102,7 @@ async function eliminarPedido(id) {
 
 module.exports = {
   listarPedidos,
+  listarPedidosDeUsuario,
   obtenerPedido,
   crearPedido,
   actualizarPedido,

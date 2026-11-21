@@ -1,7 +1,7 @@
 const { pool } = require('../config/db');
 const Usuario = require('../models/usuario.model');
 
-const columnas = 'id, nombre, email, password_hash';
+const columnas = 'id, nombre, email, password_hash, rol';
 
 const columnasEditables = {
   nombre: 'nombre',

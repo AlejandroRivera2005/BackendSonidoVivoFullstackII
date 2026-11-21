@@ -44,3 +44,6 @@ CREATE TABLE IF NOT EXISTS pedido_detalles (
 );
 CREATE INDEX IF NOT EXISTS pedido_detalles_pedido_idx ON pedido_detalles (pedido_id);
 CREATE INDEX IF NOT EXISTS pedido_detalles_producto_idx ON pedido_detalles (producto_id);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rol VARCHAR(15) NOT NULL DEFAULT 'cliente';
+ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_rol_check;
+ALTER TABLE usuarios ADD CONSTRAINT usuarios_rol_check CHECK (rol IN ('cliente', 'admin'));

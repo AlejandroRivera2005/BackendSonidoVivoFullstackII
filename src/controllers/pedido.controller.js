@@ -16,11 +16,19 @@ async function listar(req, res) {
 }
 
 async function obtener(req, res) {
-  res.status(200).json(await pedidoService.obtenerPedido(leerId(req)));
+  const pedido = await pedidoService.obtenerPedido(leerId(req));
+  if (req.usuario.rol !== 'admin' && pedido.usuarioId !== req.usuario.id) {
+    throw new ErrorApp(403, 'No puedes consultar este pedido.');
+  }
+  res.status(200).json(pedido);
+}
+
+async function mios(req, res) {
+  res.status(200).json(await pedidoService.listarPedidosDeUsuario(req.usuario.id));
 }
 
 async function crear(req, res) {
-  res.status(201).json(await pedidoService.crearPedido(req.body));
+  res.status(201).json(await pedidoService.crearPedido({ ...req.body, usuarioId: req.usuario.id }));
 }
 
 async function actualizar(req, res) {
@@ -32,4 +40,4 @@ async function eliminar(req, res) {
   res.status(204).send();
 }
 
-module.exports = { listar, obtener, crear, actualizar, eliminar };
+module.exports = { listar, mios, obtener, crear, actualizar, eliminar };

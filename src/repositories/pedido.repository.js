@@ -21,6 +21,14 @@ async function listar() {
   return rows.map(Pedido.desdeFila);
 }
 
+async function listarPorUsuario(usuarioId) {
+  const { rows } = await pool.query(
+    `SELECT ${columnas} FROM pedidos p WHERE p.usuario_id = $1 ORDER BY p.id`,
+    [usuarioId]
+  );
+  return rows.map(Pedido.desdeFila);
+}
+
 async function buscarPorId(id) {
   const { rows } = await pool.query(`SELECT ${columnas} FROM pedidos p WHERE p.id = $1`, [id]);
   return rows[0] ? Pedido.desdeFila(rows[0]) : null;
@@ -120,4 +128,4 @@ async function eliminar(id) {
   return rowCount > 0;
 }
 
-module.exports = { listar, buscarPorId, crear, actualizar, eliminar };
+module.exports = { listar, listarPorUsuario, buscarPorId, crear, actualizar, eliminar };
